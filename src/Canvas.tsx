@@ -15,7 +15,7 @@ export const Canvas: React.FC<{ store: ElementsStore }> = observer(
       <CanvasContainer>
         {store.elements.map((element) => {
           return (
-            <Element key={element.id} id={element.id} store={elementsStore} />
+            <Element key={element.id} element={element} store={elementsStore} />
           );
         })}
       </CanvasContainer>
