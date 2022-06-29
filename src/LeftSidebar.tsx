@@ -34,7 +34,7 @@ export const LeftSidebar: React.FC = () => {
               return [
                 ...elements,
                 {
-                  id: elements.length,
+                  id: (elements[elements.length - 1]?.id || 0) + 1,
                   top: 0,
                   left: 0,
                   color: randomMC.getColor(),
