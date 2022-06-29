@@ -1,10 +1,8 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { Sidebar, Title } from './ui';
 import styled from 'styled-components';
 import { FiSquare } from 'react-icons/fi';
-import { ElementsContext } from './App';
-// @ts-ignore
-import randomMC from 'random-material-color';
+import { atom, useSetRecoilState } from 'recoil';
 
 const InsertButton = styled.button`
   width: 60px;
@@ -19,8 +17,13 @@ const InsertButton = styled.button`
   border: 0;
 `;
 
+export const elementsIds = atom<number[]>({
+  key: 'elementsIds',
+  default: [],
+});
+
 export const LeftSidebar: React.FC = () => {
-  const { setElements } = useContext(ElementsContext);
+  const setElementsIds = useSetRecoilState(elementsIds);
 
   return (
     <Sidebar>
@@ -30,17 +33,10 @@ export const LeftSidebar: React.FC = () => {
       >
         <InsertButton
           onClick={() => {
-            setElements((elements) => {
-              return [
-                ...elements,
-                {
-                  id: elements.length,
-                  top: 0,
-                  left: 0,
-                  color: randomMC.getColor(),
-                },
-              ];
-            });
+            setElementsIds((elementsIds) => [
+              ...elementsIds,
+              (elementsIds[elementsIds.length - 1] || 0) + 1,
+            ]);
           }}
         >
           <FiSquare color="white" size={35} />

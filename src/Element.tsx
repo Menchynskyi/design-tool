@@ -2,6 +2,9 @@ import React from 'react';
 import { DraggableCore } from 'react-draggable';
 import styled from 'styled-components';
 import hexToRgba from 'hex-to-rgba';
+// @ts-ignore
+import randomMC from 'random-material-color';
+import { atomFamily, useRecoilState, atom, useSetRecoilState } from 'recoil';
 
 const Container = styled.div`
   position: absolute;
@@ -23,31 +26,54 @@ const InnerContainer = styled.div`
 `;
 
 type ElementProps = {
+  id: number;
+};
+
+export type ElementState = {
   top: number;
   left: number;
   color: string;
-  onDrag: (top: number, left: number) => void;
-  onSelect: () => void;
 };
 
-export const Element: React.FC<ElementProps> = ({
-  top,
-  left,
-  color,
-  onDrag,
-  onSelect,
-}) => {
+export const elementState = atomFamily({
+  key: 'element',
+  default: () => ({
+    top: 0,
+    left: 0,
+    color: randomMC.getColor(),
+  }),
+});
+
+export const selectedElementIdState = atom<null | number>({
+  key: 'selectedElementId',
+  default: null,
+});
+
+export const Element: React.FC<ElementProps> = ({ id }) => {
+  const [element, setElement] = useRecoilState(elementState(id));
+  const setSelectedElement = useSetRecoilState(selectedElementIdState);
+
   return (
     <Container
-      style={{ top, left, backgroundColor: hexToRgba(color, 0.45) }}
-      onMouseDown={onSelect}
+      style={{
+        top: element.top,
+        left: element.left,
+        backgroundColor: hexToRgba(element.color, 0.45),
+      }}
+      onMouseDown={() => setSelectedElement(id)}
     >
       <DraggableCore
-        onDrag={(e: any) => onDrag(top + e.movementY, left + e.movementX)}
+        onDrag={(e: any) => {
+          setElement({
+            ...element,
+            top: element.top + e.movementY,
+            left: element.left + e.movementX,
+          });
+        }}
       >
         <InnerContainer>
-          <div>Top: {top}</div>
-          <div>Left: {left}</div>
+          <div>Top: {element.top}</div>
+          <div>Left: {element.left}</div>
         </InnerContainer>
       </DraggableCore>
     </Container>

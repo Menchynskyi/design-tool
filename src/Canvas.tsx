@@ -1,7 +1,8 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import { Element } from './Element';
-import { ElementsContext } from './App';
+import { useRecoilValue } from 'recoil';
+import { elementsIds } from './LeftSidebar';
 
 const CanvasContainer = styled.div`
   flex: 1;
@@ -9,36 +10,13 @@ const CanvasContainer = styled.div`
 `;
 
 export const Canvas: React.FC = () => {
-  const { elements, setSelectedElement, setElements } =
-    useContext(ElementsContext);
+  const elementsIdsList = useRecoilValue(elementsIds);
+  console.log(elementsIdsList);
 
   return (
     <CanvasContainer>
-      {elements.map((element) => {
-        return (
-          <Element
-            key={element.id}
-            top={element.top}
-            left={element.left}
-            color={element.color}
-            onDrag={(top, left) => {
-              setElements(
-                elements.map((el) => {
-                  if (el.id === element.id) {
-                    return {
-                      ...el,
-                      top,
-                      left,
-                    };
-                  } else {
-                    return el;
-                  }
-                }),
-              );
-            }}
-            onSelect={() => setSelectedElement(element.id)}
-          />
-        );
+      {elementsIdsList.map((elementId) => {
+        return <Element key={elementId} id={elementId} />;
       })}
     </CanvasContainer>
   );

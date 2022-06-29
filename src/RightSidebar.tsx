@@ -1,8 +1,16 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { Sidebar, Title } from './ui';
 import styled from 'styled-components';
-import { ElementsContext } from './App';
 import { ColorPicker } from './ColorPicker';
+import {
+  useRecoilState,
+  selector,
+  useSetRecoilState,
+  useRecoilValue,
+  useResetRecoilState,
+} from 'recoil';
+import { selectedElementIdState, elementState, ElementState } from './Element';
+import { elementsIds } from './LeftSidebar';
 
 const InputLabel = styled.div`
   font-weight: 500;
@@ -51,75 +59,79 @@ const PropertyInput: React.FC<{
   );
 };
 
-const Properties: React.FC = () => {
-  const {
-    selectedElement: selectedElementId,
-    elements,
-    setElements,
-  } = useContext(ElementsContext);
+const selectedElementState = selector<ElementState | undefined>({
+  key: 'selectedElement',
+  get: ({ get }) => {
+    const id = get(selectedElementIdState);
 
-  const selectedElement = elements.find(
-    (element) => element.id === selectedElementId,
+    if (id != null) {
+      return get(elementState(id));
+    }
+  },
+  set: ({ set, get }, newElementValue) => {
+    const id = get(selectedElementIdState);
+
+    if (id != null && newElementValue) {
+      set(elementState(id), newElementValue);
+    }
+  },
+});
+
+const Properties: React.FC = () => {
+  const [selectedElement, setSelectedElement] =
+    useRecoilState(selectedElementState);
+  const selectedId = useRecoilValue(selectedElementIdState);
+  const setElementIds = useSetRecoilState(elementsIds);
+  const removeSelectedElementState = useResetRecoilState(
+    elementState(selectedId),
   );
 
-  if (!selectedElement) return null;
+  if (!selectedElement || !selectedId) return null;
 
   return (
-    <>
+    <div>
       <Title>Properties</Title>
       <InputLabel>Color</InputLabel>
       <ColorPicker
         value={selectedElement.color}
         onChange={(color) => {
-          setElements(
-            elements.map((el) => {
-              if (el.id === selectedElement.id) {
-                return { ...el, color };
-              } else {
-                return el;
-              }
-            }),
-          );
+          setSelectedElement({
+            ...selectedElement,
+            color,
+          });
         }}
       />
       <PropertyInput
         label="Top"
         value={selectedElement.top}
         onChange={(top) => {
-          setElements(
-            elements.map((el) => {
-              if (el.id === selectedElement.id) {
-                return { ...el, top };
-              } else {
-                return el;
-              }
-            }),
-          );
+          setSelectedElement({
+            ...selectedElement,
+            top,
+          });
         }}
       />
       <PropertyInput
         label="Left"
         value={selectedElement.left}
         onChange={(left) => {
-          setElements(
-            elements.map((el) => {
-              if (el.id === selectedElement.id) {
-                return { ...el, left };
-              } else {
-                return el;
-              }
-            }),
-          );
+          setSelectedElement({
+            ...selectedElement,
+            left,
+          });
         }}
       />
       <RemoveButton
-        onClick={() =>
-          setElements(elements.filter((el) => el.id !== selectedElementId))
-        }
+        onClick={() => {
+          setElementIds((elementIds) =>
+            elementIds.filter((id) => id !== selectedId),
+          );
+          removeSelectedElementState();
+        }}
       >
         Delete
       </RemoveButton>
-    </>
+    </div>
   );
 };
 
