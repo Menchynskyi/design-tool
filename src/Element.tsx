@@ -2,6 +2,8 @@ import React from 'react';
 import { DraggableCore } from 'react-draggable';
 import styled from 'styled-components';
 import hexToRgba from 'hex-to-rgba';
+import { observer } from 'mobx-react-lite';
+import { ElementsStore } from './App';
 
 const Container = styled.div`
   position: absolute;
@@ -23,27 +25,31 @@ const InnerContainer = styled.div`
 `;
 
 type ElementProps = {
-  top: number;
-  left: number;
-  color: string;
-  onDrag: (top: number, left: number) => void;
-  onSelect: () => void;
+  id: number;
+  store: ElementsStore;
 };
 
-export const Element: React.FC<ElementProps> = ({
-  top,
-  left,
-  color,
-  onDrag,
-  onSelect,
-}) => {
+export const Element: React.FC<ElementProps> = observer(({ id, store }) => {
+  const {
+    top = 0,
+    left = 0,
+    color = '',
+  } = store.elements.find((el) => el.id === id) || {};
+
   return (
     <Container
       style={{ top, left, backgroundColor: hexToRgba(color, 0.45) }}
-      onMouseDown={onSelect}
+      onMouseDown={() => store.setSelectedElement(id)}
     >
       <DraggableCore
-        onDrag={(e: any) => onDrag(top + e.movementY, left + e.movementX)}
+        onDrag={(e: any) => {
+          store.setElementState({
+            id,
+            color,
+            top: top + e.movementY,
+            left: left + e.movementX,
+          });
+        }}
       >
         <InnerContainer>
           <div>Top: {top}</div>
@@ -52,4 +58,4 @@ export const Element: React.FC<ElementProps> = ({
       </DraggableCore>
     </Container>
   );
-};
+});

@@ -1,10 +1,9 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { Sidebar, Title } from './ui';
 import styled from 'styled-components';
 import { FiSquare } from 'react-icons/fi';
-import { ElementsContext } from './App';
-// @ts-ignore
-import randomMC from 'random-material-color';
+import { ElementsStore } from './App';
+import { observer } from 'mobx-react-lite';
 
 const InsertButton = styled.button`
   width: 60px;
@@ -19,34 +18,24 @@ const InsertButton = styled.button`
   border: 0;
 `;
 
-export const LeftSidebar: React.FC = () => {
-  const { setElements } = useContext(ElementsContext);
-
-  return (
-    <Sidebar>
-      <Title>Insert</Title>
-      <div
-        style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}
-      >
-        <InsertButton
-          onClick={() => {
-            setElements((elements) => {
-              return [
-                ...elements,
-                {
-                  id: elements.length,
-                  top: 0,
-                  left: 0,
-                  color: randomMC.getColor(),
-                },
-              ];
-            });
+export const LeftSidebar: React.FC<{ store: ElementsStore }> = observer(
+  ({ store }) => {
+    return (
+      <Sidebar>
+        <Title>Insert</Title>
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'row',
+            alignItems: 'center',
           }}
         >
-          <FiSquare color="white" size={35} />
-        </InsertButton>
-        <div style={{ width: 15 }} />
-      </div>
-    </Sidebar>
-  );
-};
+          <InsertButton onClick={store.createNewElement}>
+            <FiSquare color="white" size={35} />
+          </InsertButton>
+          <div style={{ width: 15 }} />
+        </div>
+      </Sidebar>
+    );
+  },
+);

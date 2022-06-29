@@ -16,6 +16,8 @@
     "hex-to-rgba": "^2.0.1",
     "immer": "^6.0.5",
     "lodash.memoize": "^4.1.2",
+    "mobx": "^6.6.1",
+    "mobx-react-lite": "^3.4.0",
     "random-material-color": "^1.0.5",
     "react": "^16.13.1",
     "react-color": "^2.18.1",

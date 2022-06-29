@@ -1,10 +1,13 @@
-import React, { useState } from 'react';
+import { makeAutoObservable } from 'mobx';
+import React from 'react';
 import styled from 'styled-components';
 
 import { Canvas } from './Canvas';
 import { LeftSidebar } from './LeftSidebar';
 import { RightSidebar } from './RightSidebar';
 import { GlobalStyles } from './ui';
+// @ts-ignore
+import randomMC from 'random-material-color';
 
 const Container = styled.div`
   display: flex;
@@ -13,7 +16,7 @@ const Container = styled.div`
   height: 100vh;
 `;
 
-type Element = {
+export type Element = {
   id: number;
   top: number;
   left: number;
@@ -22,35 +25,51 @@ type Element = {
 
 type SelectedElement = number | undefined;
 
-type ElementsContext = {
-  elements: Element[];
-  setElements: React.Dispatch<React.SetStateAction<Element[]>>;
-  selectedElement: SelectedElement;
-  setSelectedElement: React.Dispatch<React.SetStateAction<number | undefined>>;
-};
+export class ElementsStore {
+  elements: Element[] = [];
+  selectedElement?: SelectedElement;
 
-export const ElementsContext = React.createContext<ElementsContext>({
-  elements: [],
-  setElements: () => {},
-  selectedElement: undefined,
-  setSelectedElement: () => {},
-});
+  constructor() {
+    makeAutoObservable(this);
+  }
+
+  setElements = (newElements: Element[]) => {
+    this.elements = newElements;
+  };
+
+  setSelectedElement = (id: SelectedElement) => {
+    this.selectedElement = id;
+  };
+
+  setElementState = (newState: Element) => {
+    let elementState = this.elements.find((el) => el.id === newState.id);
+    if (elementState) {
+      elementState.left = newState.left;
+      elementState.top = newState.top;
+      elementState.color = newState.color;
+    }
+  };
+
+  createNewElement = () => {
+    this.elements[this.elements.length] = {
+      id: (this.elements[this.elements.length - 1]?.id || 0) + 1,
+      top: 0,
+      left: 0,
+      color: randomMC.getColor(),
+    };
+  };
+}
+
+export const elementsStore = new ElementsStore();
 
 const App: React.FC = () => {
-  const [elements, setElements] = useState<Element[]>([]);
-  const [selectedElement, setSelectedElement] = useState<number | undefined>();
-
   return (
-    <ElementsContext.Provider
-      value={{ elements, setElements, selectedElement, setSelectedElement }}
-    >
-      <Container>
-        <LeftSidebar />
-        <Canvas />
-        <RightSidebar />
-        <GlobalStyles />
-      </Container>
-    </ElementsContext.Provider>
+    <Container>
+      <LeftSidebar store={elementsStore} />
+      <Canvas store={elementsStore} />
+      <RightSidebar />
+      <GlobalStyles />
+    </Container>
   );
 };
 

@@ -1,45 +1,24 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import { Element } from './Element';
-import { ElementsContext } from './App';
+import { elementsStore, ElementsStore } from './App';
+import { observer } from 'mobx-react-lite';
 
 const CanvasContainer = styled.div`
   flex: 1;
   position: relative;
 `;
 
-export const Canvas: React.FC = () => {
-  const { elements, setSelectedElement, setElements } =
-    useContext(ElementsContext);
-
-  return (
-    <CanvasContainer>
-      {elements.map((element) => {
-        return (
-          <Element
-            key={element.id}
-            top={element.top}
-            left={element.left}
-            color={element.color}
-            onDrag={(top, left) => {
-              setElements(
-                elements.map((el) => {
-                  if (el.id === element.id) {
-                    return {
-                      ...el,
-                      top,
-                      left,
-                    };
-                  } else {
-                    return el;
-                  }
-                }),
-              );
-            }}
-            onSelect={() => setSelectedElement(element.id)}
-          />
-        );
-      })}
-    </CanvasContainer>
-  );
-};
+export const Canvas: React.FC<{ store: ElementsStore }> = observer(
+  ({ store }) => {
+    return (
+      <CanvasContainer>
+        {store.elements.map((element) => {
+          return (
+            <Element key={element.id} id={element.id} store={elementsStore} />
+          );
+        })}
+      </CanvasContainer>
+    );
+  },
+);

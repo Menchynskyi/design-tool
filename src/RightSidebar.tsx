@@ -1,8 +1,9 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { Sidebar, Title } from './ui';
 import styled from 'styled-components';
-import { ElementsContext } from './App';
+import { elementsStore, ElementsStore } from './App';
 import { ColorPicker } from './ColorPicker';
+import { observer } from 'mobx-react-lite';
 
 const InputLabel = styled.div`
   font-weight: 500;
@@ -51,15 +52,9 @@ const PropertyInput: React.FC<{
   );
 };
 
-const Properties: React.FC = () => {
-  const {
-    selectedElement: selectedElementId,
-    elements,
-    setElements,
-  } = useContext(ElementsContext);
-
-  const selectedElement = elements.find(
-    (element) => element.id === selectedElementId,
+const Properties: React.FC<{ store: ElementsStore }> = observer(({ store }) => {
+  const selectedElement = store.elements.find(
+    (element) => element.id === store.selectedElement,
   );
 
   if (!selectedElement) return null;
@@ -71,62 +66,49 @@ const Properties: React.FC = () => {
       <ColorPicker
         value={selectedElement.color}
         onChange={(color) => {
-          setElements(
-            elements.map((el) => {
-              if (el.id === selectedElement.id) {
-                return { ...el, color };
-              } else {
-                return el;
-              }
-            }),
-          );
+          store.setElementState({
+            ...selectedElement,
+            color,
+          });
         }}
       />
       <PropertyInput
         label="Top"
         value={selectedElement.top}
         onChange={(top) => {
-          setElements(
-            elements.map((el) => {
-              if (el.id === selectedElement.id) {
-                return { ...el, top };
-              } else {
-                return el;
-              }
-            }),
-          );
+          store.setElementState({
+            ...selectedElement,
+            top,
+          });
         }}
       />
       <PropertyInput
         label="Left"
         value={selectedElement.left}
         onChange={(left) => {
-          setElements(
-            elements.map((el) => {
-              if (el.id === selectedElement.id) {
-                return { ...el, left };
-              } else {
-                return el;
-              }
-            }),
-          );
+          store.setElementState({
+            ...selectedElement,
+            left,
+          });
         }}
       />
       <RemoveButton
         onClick={() =>
-          setElements(elements.filter((el) => el.id !== selectedElementId))
+          store.setElements(
+            store.elements.filter((el) => el.id !== store.selectedElement),
+          )
         }
       >
         Delete
       </RemoveButton>
     </>
   );
-};
+});
 
 export const RightSidebar: React.FC = () => {
   return (
     <Sidebar>
-      <Properties />
+      <Properties store={elementsStore} />
     </Sidebar>
   );
 };
