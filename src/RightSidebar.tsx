@@ -1,7 +1,7 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { Sidebar, Title } from './ui';
 import styled from 'styled-components';
-import { ElementsContext } from './App';
+import { ElementsState, useElementsState, Element } from './App';
 import { ColorPicker } from './ColorPicker';
 
 const InputLabel = styled.div`
@@ -52,14 +52,16 @@ const PropertyInput: React.FC<{
 };
 
 const Properties: React.FC = () => {
-  const {
-    selectedElement: selectedElementId,
-    elements,
-    setElements,
-  } = useContext(ElementsContext);
+  const { elements, setElements, selectedElementId, removeSelectedElement } =
+    useElementsState((state: ElementsState) => ({
+      elements: state.elements,
+      setElements: state.setElements,
+      selectedElementId: state.selectedElement,
+      removeSelectedElement: state.removeSelectedElement,
+    }));
 
   const selectedElement = elements.find(
-    (element) => element.id === selectedElementId,
+    (element: Element) => element.id === selectedElementId,
   );
 
   if (!selectedElement) return null;
@@ -72,7 +74,7 @@ const Properties: React.FC = () => {
         value={selectedElement.color}
         onChange={(color) => {
           setElements(
-            elements.map((el) => {
+            elements.map((el: Element) => {
               if (el.id === selectedElement.id) {
                 return { ...el, color };
               } else {
@@ -87,7 +89,7 @@ const Properties: React.FC = () => {
         value={selectedElement.top}
         onChange={(top) => {
           setElements(
-            elements.map((el) => {
+            elements.map((el: Element) => {
               if (el.id === selectedElement.id) {
                 return { ...el, top };
               } else {
@@ -102,7 +104,7 @@ const Properties: React.FC = () => {
         value={selectedElement.left}
         onChange={(left) => {
           setElements(
-            elements.map((el) => {
+            elements.map((el: Element) => {
               if (el.id === selectedElement.id) {
                 return { ...el, left };
               } else {
@@ -112,13 +114,7 @@ const Properties: React.FC = () => {
           );
         }}
       />
-      <RemoveButton
-        onClick={() =>
-          setElements(elements.filter((el) => el.id !== selectedElementId))
-        }
-      >
-        Delete
-      </RemoveButton>
+      <RemoveButton onClick={removeSelectedElement}>Delete</RemoveButton>
     </>
   );
 };

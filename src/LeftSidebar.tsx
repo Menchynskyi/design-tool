@@ -1,8 +1,8 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { Sidebar, Title } from './ui';
 import styled from 'styled-components';
 import { FiSquare } from 'react-icons/fi';
-import { ElementsContext } from './App';
+import { ElementsState, useElementsState } from './App';
 // @ts-ignore
 import randomMC from 'random-material-color';
 
@@ -20,7 +20,12 @@ const InsertButton = styled.button`
 `;
 
 export const LeftSidebar: React.FC = () => {
-  const { setElements } = useContext(ElementsContext);
+  const { elements, setElements } = useElementsState(
+    (state: ElementsState) => ({
+      elements: state.elements,
+      setElements: state.setElements,
+    }),
+  );
 
   return (
     <Sidebar>
@@ -30,17 +35,15 @@ export const LeftSidebar: React.FC = () => {
       >
         <InsertButton
           onClick={() => {
-            setElements((elements) => {
-              return [
-                ...elements,
-                {
-                  id: elements.length,
-                  top: 0,
-                  left: 0,
-                  color: randomMC.getColor(),
-                },
-              ];
-            });
+            setElements([
+              ...elements,
+              {
+                id: (elements[elements.length - 1]?.id || 0) + 1,
+                top: 0,
+                left: 0,
+                color: randomMC.getColor(),
+              },
+            ]);
           }}
         >
           <FiSquare color="white" size={35} />

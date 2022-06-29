@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React from 'react';
 import styled from 'styled-components';
+import create from 'zustand';
 
 import { Canvas } from './Canvas';
 import { LeftSidebar } from './LeftSidebar';
@@ -13,7 +14,7 @@ const Container = styled.div`
   height: 100vh;
 `;
 
-type Element = {
+export type Element = {
   id: number;
   top: number;
   left: number;
@@ -22,35 +23,35 @@ type Element = {
 
 type SelectedElement = number | undefined;
 
-type ElementsContext = {
+export type ElementsState = {
   elements: Element[];
-  setElements: React.Dispatch<React.SetStateAction<Element[]>>;
+  setElements: (newElements: Element[]) => void;
   selectedElement: SelectedElement;
-  setSelectedElement: React.Dispatch<React.SetStateAction<number | undefined>>;
+  setSelectedElement: (selectedElement: SelectedElement) => void;
+  removeSelectedElement: () => void;
 };
 
-export const ElementsContext = React.createContext<ElementsContext>({
+export const useElementsState = create<ElementsState>((set) => ({
   elements: [],
-  setElements: () => {},
+  setElements: (newElements) => set({ elements: newElements }),
   selectedElement: undefined,
-  setSelectedElement: () => {},
-});
+  setSelectedElement: (selectedElement) => set({ selectedElement }),
+  removeSelectedElement: () =>
+    set((state: ElementsState) => ({
+      elements: state.elements.filter(
+        (el: Element) => el.id !== state.selectedElement,
+      ),
+    })),
+}));
 
 const App: React.FC = () => {
-  const [elements, setElements] = useState<Element[]>([]);
-  const [selectedElement, setSelectedElement] = useState<number | undefined>();
-
   return (
-    <ElementsContext.Provider
-      value={{ elements, setElements, selectedElement, setSelectedElement }}
-    >
-      <Container>
-        <LeftSidebar />
-        <Canvas />
-        <RightSidebar />
-        <GlobalStyles />
-      </Container>
-    </ElementsContext.Provider>
+    <Container>
+      <LeftSidebar />
+      <Canvas />
+      <RightSidebar />
+      <GlobalStyles />
+    </Container>
   );
 };
 

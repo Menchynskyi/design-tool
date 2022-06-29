@@ -1,7 +1,11 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import { Element } from './Element';
-import { ElementsContext } from './App';
+import {
+  Element as ElementState,
+  ElementsState,
+  useElementsState,
+} from './App';
 
 const CanvasContainer = styled.div`
   flex: 1;
@@ -9,12 +13,17 @@ const CanvasContainer = styled.div`
 `;
 
 export const Canvas: React.FC = () => {
-  const { elements, setSelectedElement, setElements } =
-    useContext(ElementsContext);
+  const { elements, setElements, setSelectedElement } = useElementsState(
+    (state: ElementsState) => ({
+      elements: state.elements,
+      setElements: state.setElements,
+      setSelectedElement: state.setSelectedElement,
+    }),
+  );
 
   return (
     <CanvasContainer>
-      {elements.map((element) => {
+      {elements.map((element: ElementState) => {
         return (
           <Element
             key={element.id}
@@ -23,7 +32,7 @@ export const Canvas: React.FC = () => {
             color={element.color}
             onDrag={(top, left) => {
               setElements(
-                elements.map((el) => {
+                elements.map((el: ElementState) => {
                   if (el.id === element.id) {
                     return {
                       ...el,
