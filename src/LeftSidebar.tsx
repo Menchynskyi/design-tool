@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import { Sidebar, Title } from './ui';
 import styled from 'styled-components';
-import { FiSquare, FiImage } from 'react-icons/fi';
+import { FiSquare } from 'react-icons/fi';
 import { ElementsContext } from './App';
 // @ts-ignore
 import randomMC from 'random-material-color';
@@ -46,9 +46,6 @@ export const LeftSidebar: React.FC = () => {
           <FiSquare color="white" size={35} />
         </InsertButton>
         <div style={{ width: 15 }} />
-        <InsertButton>
-          <FiImage color="white" size={35} />
-        </InsertButton>
       </div>
     </Sidebar>
   );

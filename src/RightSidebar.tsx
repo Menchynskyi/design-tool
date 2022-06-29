@@ -22,6 +22,18 @@ const Input = styled.input`
   font-size: 16px;
 `;
 
+const RemoveButton = styled.button`
+  padding: 12px 24px;
+  background-color: rgba(10, 10, 10, 0.3);
+  border-radius: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  border: 0;
+  color: white;
+`;
+
 const PropertyInput: React.FC<{
   label: string;
   value: number;
@@ -100,6 +112,13 @@ const Properties: React.FC = () => {
           );
         }}
       />
+      <RemoveButton
+        onClick={() =>
+          setElements(elements.filter((el) => el.id !== selectedElementId))
+        }
+      >
+        Delete
+      </RemoveButton>
     </>
   );
 };
