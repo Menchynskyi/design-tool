@@ -2,7 +2,7 @@ import React, { memo } from 'react';
 import { DraggableCore } from 'react-draggable';
 import styled from 'styled-components';
 import hexToRgba from 'hex-to-rgba';
-import { elements$, selectedElementId$ } from './App';
+import { elementsSubject, selectedElementIdSubject } from './App';
 
 const Container = styled.div`
   position: absolute;
@@ -35,12 +35,12 @@ export const Element: React.FC<ElementProps> = memo(
     return (
       <Container
         style={{ top, left, backgroundColor: hexToRgba(color, 0.45) }}
-        onMouseDown={() => selectedElementId$.next(id)}
+        onMouseDown={() => selectedElementIdSubject.next(id)}
       >
         <DraggableCore
           onDrag={(e: any) => {
-            elements$.next(
-              elements$.value.map((el) => {
+            elementsSubject.next(
+              elementsSubject.value.map((el) => {
                 if (el.id === id) {
                   return {
                     ...el,

@@ -2,7 +2,7 @@ import React from 'react';
 import { Sidebar, Title } from './ui';
 import styled from 'styled-components';
 import { FiSquare } from 'react-icons/fi';
-import { elements$ } from './App';
+import { elementsSubject } from './App';
 // @ts-ignore
 import randomMC from 'random-material-color';
 
@@ -28,10 +28,12 @@ export const LeftSidebar: React.FC = () => {
       >
         <InsertButton
           onClick={() => {
-            elements$.next([
-              ...elements$.value,
+            elementsSubject.next([
+              ...elementsSubject.value,
               {
-                id: (elements$.value[elements$.value.length - 1]?.id || 0) + 1,
+                id:
+                  (elementsSubject.value[elementsSubject.value.length - 1]
+                    ?.id || 0) + 1,
                 top: 0,
                 left: 0,
                 color: randomMC.getColor(),

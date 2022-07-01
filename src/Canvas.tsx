@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { Element } from './Element';
-import { elements$ } from './App';
+import { elementsSubject } from './App';
 import { useObservableState } from 'observable-hooks';
 
 const CanvasContainer = styled.div`
@@ -10,7 +10,7 @@ const CanvasContainer = styled.div`
 `;
 
 export const Canvas: React.FC = () => {
-  const elements = useObservableState(elements$);
+  const elements = useObservableState(elementsSubject);
 
   return (
     <CanvasContainer>

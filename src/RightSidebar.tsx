@@ -1,7 +1,11 @@
 import React from 'react';
 import { Sidebar, Title } from './ui';
 import styled from 'styled-components';
-import { elements$, selectedElementId$, selectedElement$ } from './App';
+import {
+  elementsSubject,
+  selectedElementIdSubject,
+  selectedElementSubject,
+} from './App';
 import { ColorPicker } from './ColorPicker';
 import { useObservableState } from 'observable-hooks';
 
@@ -53,8 +57,8 @@ const PropertyInput: React.FC<{
 };
 
 const Properties: React.FC = () => {
-  const selectedElementId = useObservableState(selectedElementId$);
-  const selectedElement = useObservableState(selectedElement$);
+  const selectedElementId = useObservableState(selectedElementIdSubject);
+  const selectedElement = useObservableState(selectedElementSubject);
 
   if (!selectedElement) return null;
 
@@ -65,8 +69,8 @@ const Properties: React.FC = () => {
       <ColorPicker
         value={selectedElement.color}
         onChange={(color) => {
-          elements$.next(
-            elements$.value.map((el) => {
+          elementsSubject.next(
+            elementsSubject.value.map((el) => {
               if (el.id === selectedElement.id) {
                 return { ...el, color };
               } else {
@@ -80,8 +84,8 @@ const Properties: React.FC = () => {
         label="Top"
         value={selectedElement.top}
         onChange={(top) => {
-          elements$.next(
-            elements$.value.map((el) => {
+          elementsSubject.next(
+            elementsSubject.value.map((el) => {
               if (el.id === selectedElement.id) {
                 return { ...el, top };
               } else {
@@ -95,8 +99,8 @@ const Properties: React.FC = () => {
         label="Left"
         value={selectedElement.left}
         onChange={(left) => {
-          elements$.next(
-            elements$.value.map((el) => {
+          elementsSubject.next(
+            elementsSubject.value.map((el) => {
               if (el.id === selectedElement.id) {
                 return { ...el, left };
               } else {
@@ -108,8 +112,8 @@ const Properties: React.FC = () => {
       />
       <RemoveButton
         onClick={() =>
-          elements$.next(
-            elements$.value.filter((el) => el.id !== selectedElementId),
+          elementsSubject.next(
+            elementsSubject.value.filter((el) => el.id !== selectedElementId),
           )
         }
       >

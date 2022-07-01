@@ -21,12 +21,14 @@ type Element = {
   color: string;
 };
 
-export const elements$ = new BehaviorSubject<Element[]>([]);
+export const elementsSubject = new BehaviorSubject<Element[]>([]);
 
-export const selectedElementId$ = new BehaviorSubject<number | null>(null);
+export const selectedElementIdSubject = new BehaviorSubject<number | null>(
+  null,
+);
 
-export const selectedElement$ = elements$.pipe(
-  combineLatestWith(selectedElementId$),
+export const selectedElementSubject = elementsSubject.pipe(
+  combineLatestWith(selectedElementIdSubject),
   map(([elements, elId]) => elements.find((el) => el.id === elId)),
 );
 
