@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { BehaviorSubject } from 'rxjs';
 import styled from 'styled-components';
 
 import { Canvas } from './Canvas';
@@ -35,6 +36,8 @@ export const ElementsContext = React.createContext<ElementsContext>({
   selectedElement: undefined,
   setSelectedElement: () => {},
 });
+
+export const elements$ = new BehaviorSubject<Element[]>([]);
 
 const App: React.FC = () => {
   const [elements, setElements] = useState<Element[]>([]);

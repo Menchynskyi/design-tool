@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { memo, useContext } from 'react';
 import { DraggableCore } from 'react-draggable';
 import styled from 'styled-components';
 import hexToRgba from 'hex-to-rgba';
+import { elements$, ElementsContext } from './App';
 
 const Container = styled.div`
   position: absolute;
@@ -26,30 +27,41 @@ type ElementProps = {
   top: number;
   left: number;
   color: string;
-  onDrag: (top: number, left: number) => void;
-  onSelect: () => void;
+  id: number;
 };
 
-export const Element: React.FC<ElementProps> = ({
-  top,
-  left,
-  color,
-  onDrag,
-  onSelect,
-}) => {
-  return (
-    <Container
-      style={{ top, left, backgroundColor: hexToRgba(color, 0.45) }}
-      onMouseDown={onSelect}
-    >
-      <DraggableCore
-        onDrag={(e: any) => onDrag(top + e.movementY, left + e.movementX)}
+export const Element: React.FC<ElementProps> = memo(
+  ({ top, left, color, id }) => {
+    const { setSelectedElement } = useContext(ElementsContext);
+
+    return (
+      <Container
+        style={{ top, left, backgroundColor: hexToRgba(color, 0.45) }}
+        onMouseDown={() => setSelectedElement(id)}
       >
-        <InnerContainer>
-          <div>Top: {top}</div>
-          <div>Left: {left}</div>
-        </InnerContainer>
-      </DraggableCore>
-    </Container>
-  );
-};
+        <DraggableCore
+          onDrag={(e: any) => {
+            elements$.next(
+              elements$.value.map((el) => {
+                if (el.id === id) {
+                  return {
+                    ...el,
+                    top: el.top + e.movementY,
+                    left: el.left + e.movementX,
+                  };
+                } else {
+                  return el;
+                }
+              }),
+            );
+          }}
+        >
+          <InnerContainer>
+            <div>Top: {top}</div>
+            <div>Left: {left}</div>
+          </InnerContainer>
+        </DraggableCore>
+      </Container>
+    );
+  },
+);
