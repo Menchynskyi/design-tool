@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { BehaviorSubject } from 'rxjs';
+import React from 'react';
+import { BehaviorSubject, combineLatestWith, map } from 'rxjs';
 import styled from 'styled-components';
 
 import { Canvas } from './Canvas';
@@ -21,39 +21,23 @@ type Element = {
   color: string;
 };
 
-type SelectedElement = number | undefined;
-
-type ElementsContext = {
-  elements: Element[];
-  setElements: React.Dispatch<React.SetStateAction<Element[]>>;
-  selectedElement: SelectedElement;
-  setSelectedElement: React.Dispatch<React.SetStateAction<number | undefined>>;
-};
-
-export const ElementsContext = React.createContext<ElementsContext>({
-  elements: [],
-  setElements: () => {},
-  selectedElement: undefined,
-  setSelectedElement: () => {},
-});
-
 export const elements$ = new BehaviorSubject<Element[]>([]);
 
-const App: React.FC = () => {
-  const [elements, setElements] = useState<Element[]>([]);
-  const [selectedElement, setSelectedElement] = useState<number | undefined>();
+export const selectedElementId$ = new BehaviorSubject<number | null>(null);
 
+export const selectedElement$ = elements$.pipe(
+  combineLatestWith(selectedElementId$),
+  map(([elements, elId]) => elements.find((el) => el.id === elId)),
+);
+
+const App: React.FC = () => {
   return (
-    <ElementsContext.Provider
-      value={{ elements, setElements, selectedElement, setSelectedElement }}
-    >
-      <Container>
-        <LeftSidebar />
-        <Canvas />
-        <RightSidebar />
-        <GlobalStyles />
-      </Container>
-    </ElementsContext.Provider>
+    <Container>
+      <LeftSidebar />
+      <Canvas />
+      <RightSidebar />
+      <GlobalStyles />
+    </Container>
   );
 };
 

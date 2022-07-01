@@ -1,8 +1,8 @@
-import React, { memo, useContext } from 'react';
+import React, { memo } from 'react';
 import { DraggableCore } from 'react-draggable';
 import styled from 'styled-components';
 import hexToRgba from 'hex-to-rgba';
-import { elements$, ElementsContext } from './App';
+import { elements$, selectedElementId$ } from './App';
 
 const Container = styled.div`
   position: absolute;
@@ -32,12 +32,10 @@ type ElementProps = {
 
 export const Element: React.FC<ElementProps> = memo(
   ({ top, left, color, id }) => {
-    const { setSelectedElement } = useContext(ElementsContext);
-
     return (
       <Container
         style={{ top, left, backgroundColor: hexToRgba(color, 0.45) }}
-        onMouseDown={() => setSelectedElement(id)}
+        onMouseDown={() => selectedElementId$.next(id)}
       >
         <DraggableCore
           onDrag={(e: any) => {
