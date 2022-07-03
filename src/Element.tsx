@@ -1,7 +1,9 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { DraggableCore } from 'react-draggable';
 import styled from 'styled-components';
 import hexToRgba from 'hex-to-rgba';
+import { useDispatch, useSelector } from 'react-redux';
+import { editElement, ElementsState, selectElement } from './App';
 
 const Container = styled.div`
   position: absolute;
@@ -23,27 +25,34 @@ const InnerContainer = styled.div`
 `;
 
 type ElementProps = {
-  top: number;
-  left: number;
-  color: string;
-  onDrag: (top: number, left: number) => void;
-  onSelect: () => void;
+  id: number;
 };
 
-export const Element: React.FC<ElementProps> = ({
-  top,
-  left,
-  color,
-  onDrag,
-  onSelect,
-}) => {
+export const Element: React.FC<ElementProps> = memo(({ id }) => {
+  const element = useSelector((state: ElementsState) =>
+    state.elements.find((el) => el.id === id),
+  );
+  const dispatch = useDispatch();
+
+  if (!element) return null;
+
+  const { top, left, color } = element;
   return (
     <Container
       style={{ top, left, backgroundColor: hexToRgba(color, 0.45) }}
-      onMouseDown={onSelect}
+      onMouseDown={() => dispatch(selectElement({ id }))}
     >
       <DraggableCore
-        onDrag={(e: any) => onDrag(top + e.movementY, left + e.movementX)}
+        onDrag={(e: any) => {
+          dispatch(
+            editElement({
+              id,
+              color,
+              top: top + e.movementY,
+              left: left + e.movementX,
+            }),
+          );
+        }}
       >
         <InnerContainer>
           <div>Top: {top}</div>
@@ -52,4 +61,4 @@ export const Element: React.FC<ElementProps> = ({
       </DraggableCore>
     </Container>
   );
-};
+});

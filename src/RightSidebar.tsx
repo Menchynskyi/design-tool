@@ -1,8 +1,9 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { Sidebar, Title } from './ui';
 import styled from 'styled-components';
-import { ElementsContext } from './App';
+import { editElement, ElementsState, removeSelectedElement } from './App';
 import { ColorPicker } from './ColorPicker';
+import { useDispatch, useSelector } from 'react-redux';
 
 const InputLabel = styled.div`
   font-weight: 500;
@@ -52,15 +53,10 @@ const PropertyInput: React.FC<{
 };
 
 const Properties: React.FC = () => {
-  const {
-    selectedElement: selectedElementId,
-    elements,
-    setElements,
-  } = useContext(ElementsContext);
-
-  const selectedElement = elements.find(
-    (element) => element.id === selectedElementId,
+  const selectedElement = useSelector((state: ElementsState) =>
+    state.elements.find((element) => element.id === state.selectedElementId),
   );
+  const dispatch = useDispatch();
 
   if (!selectedElement) return null;
 
@@ -71,52 +67,24 @@ const Properties: React.FC = () => {
       <ColorPicker
         value={selectedElement.color}
         onChange={(color) => {
-          setElements(
-            elements.map((el) => {
-              if (el.id === selectedElement.id) {
-                return { ...el, color };
-              } else {
-                return el;
-              }
-            }),
-          );
+          dispatch(editElement({ ...selectedElement, color }));
         }}
       />
       <PropertyInput
         label="Top"
         value={selectedElement.top}
         onChange={(top) => {
-          setElements(
-            elements.map((el) => {
-              if (el.id === selectedElement.id) {
-                return { ...el, top };
-              } else {
-                return el;
-              }
-            }),
-          );
+          dispatch(editElement({ ...selectedElement, top }));
         }}
       />
       <PropertyInput
         label="Left"
         value={selectedElement.left}
         onChange={(left) => {
-          setElements(
-            elements.map((el) => {
-              if (el.id === selectedElement.id) {
-                return { ...el, left };
-              } else {
-                return el;
-              }
-            }),
-          );
+          dispatch(editElement({ ...selectedElement, left }));
         }}
       />
-      <RemoveButton
-        onClick={() =>
-          setElements(elements.filter((el) => el.id !== selectedElementId))
-        }
-      >
+      <RemoveButton onClick={() => dispatch(removeSelectedElement())}>
         Delete
       </RemoveButton>
     </>
