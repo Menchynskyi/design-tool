@@ -53,9 +53,7 @@ const PropertyInput: React.FC<{
 };
 
 const Properties: React.FC<{ store: ElementsStore }> = observer(({ store }) => {
-  const selectedElement = store.elements.find(
-    (element) => element.id === store.selectedElement,
-  );
+  const selectedElement = store.selectedElement;
 
   if (!selectedElement) return null;
 
@@ -66,7 +64,7 @@ const Properties: React.FC<{ store: ElementsStore }> = observer(({ store }) => {
       <ColorPicker
         value={selectedElement.color}
         onChange={(color) => {
-          store.setElementState({
+          store.editElement({
             ...selectedElement,
             color,
           });
@@ -76,7 +74,7 @@ const Properties: React.FC<{ store: ElementsStore }> = observer(({ store }) => {
         label="Top"
         value={selectedElement.top}
         onChange={(top) => {
-          store.setElementState({
+          store.editElement({
             ...selectedElement,
             top,
           });
@@ -86,21 +84,13 @@ const Properties: React.FC<{ store: ElementsStore }> = observer(({ store }) => {
         label="Left"
         value={selectedElement.left}
         onChange={(left) => {
-          store.setElementState({
+          store.editElement({
             ...selectedElement,
             left,
           });
         }}
       />
-      <RemoveButton
-        onClick={() =>
-          store.setElements(
-            store.elements.filter((el) => el.id !== store.selectedElement),
-          )
-        }
-      >
-        Delete
-      </RemoveButton>
+      <RemoveButton onClick={store.removeSelectedElement}>Delete</RemoveButton>
     </>
   );
 });

@@ -1,4 +1,4 @@
-import { makeAutoObservable } from 'mobx';
+import { action, computed, makeAutoObservable, observable } from 'mobx';
 import React from 'react';
 import styled from 'styled-components';
 
@@ -23,41 +23,50 @@ export type Element = {
   color: string;
 };
 
-type SelectedElement = number | undefined;
-
 export class ElementsStore {
   elements: Element[] = [];
-  selectedElement?: SelectedElement;
+  selectedElementId?: number;
 
   constructor() {
-    makeAutoObservable(this);
+    makeAutoObservable(this, {
+      elements: observable,
+      selectedElementId: observable,
+      setSelectedElement: action,
+      createNewElement: action,
+      editElement: action,
+      removeSelectedElement: action,
+      selectedElement: computed,
+    });
   }
 
-  setElements = (newElements: Element[]) => {
-    this.elements = newElements;
-  };
-
-  setSelectedElement = (id: SelectedElement) => {
-    this.selectedElement = id;
-  };
-
-  setElementState = (newState: Element) => {
-    let elementState = this.elements.find((el) => el.id === newState.id);
-    if (elementState) {
-      elementState.left = newState.left;
-      elementState.top = newState.top;
-      elementState.color = newState.color;
-    }
-  };
-
   createNewElement = () => {
-    this.elements[this.elements.length] = {
+    this.elements.push({
       id: (this.elements[this.elements.length - 1]?.id || 0) + 1,
       top: 0,
       left: 0,
       color: randomMC.getColor(),
-    };
+    });
   };
+
+  editElement = (element: Element) => {
+    this.elements = this.elements.map((el) =>
+      el.id !== element.id ? el : element,
+    );
+  };
+
+  removeSelectedElement = () => {
+    this.elements = this.elements.filter(
+      ({ id }) => id !== this.selectedElementId,
+    );
+  };
+
+  setSelectedElement = (id: number) => {
+    this.selectedElementId = id;
+  };
+
+  get selectedElement() {
+    return this.elements.find(({ id }) => id === this.selectedElementId);
+  }
 }
 
 export const elementsStore = new ElementsStore();

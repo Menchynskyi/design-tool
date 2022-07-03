@@ -39,7 +39,7 @@ export const Element: React.FC<ElementProps> = observer(
       >
         <DraggableCore
           onDrag={(e: any) => {
-            store.setElementState({
+            store.editElement({
               id,
               color,
               top: top + e.movementY,
