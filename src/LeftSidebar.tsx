@@ -2,8 +2,8 @@ import React from 'react';
 import { Sidebar, Title } from './ui';
 import styled from 'styled-components';
 import { FiSquare } from 'react-icons/fi';
-import { ElementsStore } from './App';
 import { observer } from 'mobx-react-lite';
+import { useElementStore } from './App';
 
 const InsertButton = styled.button`
   width: 60px;
@@ -18,24 +18,24 @@ const InsertButton = styled.button`
   border: 0;
 `;
 
-export const LeftSidebar: React.FC<{ store: ElementsStore }> = observer(
-  ({ store }) => {
-    return (
-      <Sidebar>
-        <Title>Insert</Title>
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'row',
-            alignItems: 'center',
-          }}
-        >
-          <InsertButton onClick={store.createNewElement}>
-            <FiSquare color="white" size={35} />
-          </InsertButton>
-          <div style={{ width: 15 }} />
-        </div>
-      </Sidebar>
-    );
-  },
-);
+export const LeftSidebar = observer(() => {
+  const { createNewElement } = useElementStore();
+
+  return (
+    <Sidebar>
+      <Title>Insert</Title>
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'row',
+          alignItems: 'center',
+        }}
+      >
+        <InsertButton onClick={createNewElement}>
+          <FiSquare color="white" size={35} />
+        </InsertButton>
+        <div style={{ width: 15 }} />
+      </div>
+    </Sidebar>
+  );
+});

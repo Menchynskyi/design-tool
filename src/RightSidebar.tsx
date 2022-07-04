@@ -1,7 +1,7 @@
 import React from 'react';
 import { Sidebar, Title } from './ui';
 import styled from 'styled-components';
-import { elementsStore, ElementsStore } from './App';
+import { useElementStore } from './App';
 import { ColorPicker } from './ColorPicker';
 import { observer } from 'mobx-react-lite';
 
@@ -52,8 +52,9 @@ const PropertyInput: React.FC<{
   );
 };
 
-const Properties: React.FC<{ store: ElementsStore }> = observer(({ store }) => {
-  const selectedElement = store.selectedElement;
+const Properties = observer(() => {
+  const { editElement, selectedElement, removeSelectedElement } =
+    useElementStore();
 
   if (!selectedElement) return null;
 
@@ -64,7 +65,7 @@ const Properties: React.FC<{ store: ElementsStore }> = observer(({ store }) => {
       <ColorPicker
         value={selectedElement.color}
         onChange={(color) => {
-          store.editElement({
+          editElement({
             ...selectedElement,
             color,
           });
@@ -74,7 +75,7 @@ const Properties: React.FC<{ store: ElementsStore }> = observer(({ store }) => {
         label="Top"
         value={selectedElement.top}
         onChange={(top) => {
-          store.editElement({
+          editElement({
             ...selectedElement,
             top,
           });
@@ -84,13 +85,13 @@ const Properties: React.FC<{ store: ElementsStore }> = observer(({ store }) => {
         label="Left"
         value={selectedElement.left}
         onChange={(left) => {
-          store.editElement({
+          editElement({
             ...selectedElement,
             left,
           });
         }}
       />
-      <RemoveButton onClick={store.removeSelectedElement}>Delete</RemoveButton>
+      <RemoveButton onClick={removeSelectedElement}>Delete</RemoveButton>
     </>
   );
 });
@@ -98,7 +99,7 @@ const Properties: React.FC<{ store: ElementsStore }> = observer(({ store }) => {
 export const RightSidebar: React.FC = () => {
   return (
     <Sidebar>
-      <Properties store={elementsStore} />
+      <Properties />
     </Sidebar>
   );
 };

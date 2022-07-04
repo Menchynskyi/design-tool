@@ -1,6 +1,6 @@
-import { action, computed, makeAutoObservable, observable } from 'mobx';
-import React from 'react';
+import React, { createContext, useContext } from 'react';
 import styled from 'styled-components';
+import { destroy, Instance, types } from 'mobx-state-tree';
 
 import { Canvas } from './Canvas';
 import { LeftSidebar } from './LeftSidebar';
@@ -23,62 +23,85 @@ export type Element = {
   color: string;
 };
 
-export class ElementsStore {
-  elements: Element[] = [];
-  selectedElementId?: number;
+const Element = types.model('Element', {
+  id: types.number,
+  top: types.number,
+  left: types.number,
+  color: types.string,
+});
 
-  constructor() {
-    makeAutoObservable(this, {
-      elements: observable,
-      selectedElementId: observable,
-      setSelectedElement: action,
-      createNewElement: action,
-      editElement: action,
-      removeSelectedElement: action,
-      selectedElement: computed,
-    });
+// const SelectedElement = types.model('SelectedElement', types.number);
+
+const ElementsStore = types
+  .model('ElementsStore', {
+    elements: types.array(Element),
+    selectedElementId: types.maybe(types.number),
+  })
+  .actions((self) => ({
+    createNewElement() {
+      self.elements.push({
+        id: (self.elements[self.elements.length - 1]?.id || 0) + 1,
+        top: 0,
+        left: 0,
+        color: randomMC.getColor(),
+      });
+    },
+
+    editElement(element: Element) {
+      const elementIndex = self.elements.findIndex(
+        ({ id }) => id === element.id,
+      );
+      if (elementIndex !== -1) self.elements[elementIndex] = element;
+    },
+
+    removeSelectedElement() {
+      const elementIndex = self.elements.findIndex(
+        ({ id }) => id === self.selectedElementId,
+      );
+      if (elementIndex !== -1) destroy(self.elements[elementIndex]);
+    },
+
+    setSelectedElement(id: number) {
+      self.selectedElementId = id;
+    },
+  }))
+  .views((self) => ({
+    get selectedElement() {
+      return self.elements.find(({ id }) => id === self.selectedElementId);
+    },
+  }));
+
+export const elementsStore = ElementsStore.create({
+  elements: [],
+  selectedElementId: undefined,
+});
+
+type ElementInstance = Instance<typeof ElementsStore>;
+
+const ElementStoreContext = createContext<null | ElementInstance>(null);
+
+export const Provider = ElementStoreContext.Provider;
+
+export const useElementStore = () => {
+  const store = useContext(ElementStoreContext);
+
+  if (store === null) {
+    throw new Error('Store cannot be null, please add a context provider');
   }
 
-  createNewElement = () => {
-    this.elements.push({
-      id: (this.elements[this.elements.length - 1]?.id || 0) + 1,
-      top: 0,
-      left: 0,
-      color: randomMC.getColor(),
-    });
-  };
-
-  editElement = (element: Element) => {
-    this.elements = this.elements.map((el) =>
-      el.id !== element.id ? el : element,
-    );
-  };
-
-  removeSelectedElement = () => {
-    this.elements = this.elements.filter(
-      ({ id }) => id !== this.selectedElementId,
-    );
-  };
-
-  setSelectedElement = (id: number) => {
-    this.selectedElementId = id;
-  };
-
-  get selectedElement() {
-    return this.elements.find(({ id }) => id === this.selectedElementId);
-  }
-}
-
-export const elementsStore = new ElementsStore();
+  return store;
+};
 
 const App: React.FC = () => {
   return (
-    <Container>
-      <LeftSidebar store={elementsStore} />
-      <Canvas store={elementsStore} />
-      <RightSidebar />
-      <GlobalStyles />
-    </Container>
+    <Provider value={elementsStore}>
+      <Container>
+        <LeftSidebar />
+        <Canvas />
+        <RightSidebar />
+        <GlobalStyles />
+      </Container>
+    </Provider>
   );
 };
 
