@@ -1,5 +1,5 @@
 import { action, computed, makeAutoObservable, observable } from 'mobx';
-import React from 'react';
+import React, { useContext, createContext } from 'react';
 import styled from 'styled-components';
 
 import { Canvas } from './Canvas';
@@ -31,7 +31,7 @@ export class ElementsStore {
     makeAutoObservable(this, {
       elements: observable,
       selectedElementId: observable,
-      setSelectedElement: action,
+      setSelectedElementId: action,
       createNewElement: action,
       editElement: action,
       removeSelectedElement: action,
@@ -60,7 +60,7 @@ export class ElementsStore {
     );
   };
 
-  setSelectedElement = (id: number) => {
+  setSelectedElementId = (id: number) => {
     this.selectedElementId = id;
   };
 
@@ -71,14 +71,30 @@ export class ElementsStore {
 
 export const elementsStore = new ElementsStore();
 
+const ElementStoreContext = createContext<null | ElementsStore>(null);
+
+export const Provider = ElementStoreContext.Provider;
+
+export const useElementStore = () => {
+  const store = useContext(ElementStoreContext);
+
+  if (store === null) {
+    throw new Error('Store cannot be null, please add a context provider');
+  }
+
+  return store;
+};
+
 const App: React.FC = () => {
   return (
-    <Container>
-      <LeftSidebar store={elementsStore} />
-      <Canvas store={elementsStore} />
-      <RightSidebar />
-      <GlobalStyles />
-    </Container>
+    <Provider value={elementsStore}>
+      <Container>
+        <LeftSidebar />
+        <Canvas />
+        <RightSidebar />
+        <GlobalStyles />
+      </Container>
+    </Provider>
   );
 };
 

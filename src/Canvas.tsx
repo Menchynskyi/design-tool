@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { Element } from './Element';
-import { elementsStore, ElementsStore } from './App';
+import { useElementStore } from './App';
 import { observer } from 'mobx-react-lite';
 
 const CanvasContainer = styled.div`
@@ -9,16 +9,14 @@ const CanvasContainer = styled.div`
   position: relative;
 `;
 
-export const Canvas: React.FC<{ store: ElementsStore }> = observer(
-  ({ store }) => {
-    return (
-      <CanvasContainer>
-        {store.elements.map((element) => {
-          return (
-            <Element key={element.id} element={element} store={elementsStore} />
-          );
-        })}
-      </CanvasContainer>
-    );
-  },
-);
+export const Canvas = observer(() => {
+  const { elements } = useElementStore();
+
+  return (
+    <CanvasContainer>
+      {elements.map((element) => {
+        return <Element key={element.id} element={element} />;
+      })}
+    </CanvasContainer>
+  );
+});
