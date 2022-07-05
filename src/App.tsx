@@ -30,8 +30,6 @@ const Element = types.model('Element', {
   color: types.string,
 });
 
-// const SelectedElement = types.model('SelectedElement', types.number);
-
 const ElementsStore = types
   .model('ElementsStore', {
     elements: types.array(Element),
