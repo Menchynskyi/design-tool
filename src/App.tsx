@@ -1,6 +1,6 @@
 import React, { createContext, useContext } from 'react';
 import styled from 'styled-components';
-import { destroy, Instance, types } from 'mobx-state-tree';
+import { destroy, Instance, SnapshotOut, types } from 'mobx-state-tree';
 
 import { Canvas } from './Canvas';
 import { LeftSidebar } from './LeftSidebar';
@@ -16,19 +16,14 @@ const Container = styled.div`
   height: 100vh;
 `;
 
-export type Element = {
-  id: number;
-  top: number;
-  left: number;
-  color: string;
-};
-
 const Element = types.model('Element', {
   id: types.number,
   top: types.number,
   left: types.number,
   color: types.string,
 });
+
+export type Element = SnapshotOut<typeof Element>;
 
 const ElementsStore = types
   .model('ElementsStore', {
