@@ -1,6 +1,7 @@
 import React, { createContext, useContext } from 'react';
 import styled from 'styled-components';
 import { destroy, Instance, SnapshotOut, types } from 'mobx-state-tree';
+import makeInspectable from 'mobx-devtools-mst';
 
 import { Canvas } from './Canvas';
 import { LeftSidebar } from './LeftSidebar';
@@ -68,6 +69,8 @@ export const elementsStore = ElementsStore.create({
   elements: [],
   selectedElementId: undefined,
 });
+
+makeInspectable(elementsStore);
 
 type ElementInstance = Instance<typeof ElementsStore>;
 
