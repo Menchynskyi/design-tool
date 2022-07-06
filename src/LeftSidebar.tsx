@@ -1,9 +1,9 @@
 import React from 'react';
 import { Sidebar, Title } from './ui';
 import styled from 'styled-components';
-import { FiSquare } from 'react-icons/fi';
+import { FiSquare, FiGift } from 'react-icons/fi';
 import { observer } from 'mobx-react-lite';
-import { useElementStore } from './App';
+import { useElementStore, useFactStore } from './App';
 
 const InsertButton = styled.button`
   width: 60px;
@@ -18,8 +18,14 @@ const InsertButton = styled.button`
   border: 0;
 `;
 
+const FactBlock = styled.div`
+  padding-right: 20px;
+  margin-top: 20px;
+`;
+
 export const LeftSidebar = observer(() => {
   const { createNewElement } = useElementStore();
+  const { loading, getRandomFact, randomFact } = useFactStore();
 
   return (
     <Sidebar>
@@ -34,8 +40,18 @@ export const LeftSidebar = observer(() => {
         <InsertButton onClick={createNewElement}>
           <FiSquare color="white" size={35} />
         </InsertButton>
+        <InsertButton
+          disabled={loading}
+          style={{ marginLeft: '12px' }}
+          onClick={getRandomFact}
+        >
+          <FiGift color="white" size={35} />
+        </InsertButton>
         <div style={{ width: 15 }} />
       </div>
+      <FactBlock>
+        <span>{loading ? 'Generating useless fact...' : randomFact}</span>
+      </FactBlock>
     </Sidebar>
   );
 });

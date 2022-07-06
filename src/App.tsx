@@ -1,6 +1,6 @@
 import React, { createContext, useContext } from 'react';
 import styled from 'styled-components';
-import { destroy, Instance, SnapshotOut, types } from 'mobx-state-tree';
+import { destroy, flow, Instance, SnapshotOut, types } from 'mobx-state-tree';
 import makeInspectable from 'mobx-devtools-mst';
 
 import { Canvas } from './Canvas';
@@ -67,10 +67,42 @@ const ElementsStore = types
 
 export const elementsStore = ElementsStore.create({
   elements: [],
-  selectedElementId: undefined,
+});
+
+const FactStore = types
+  .model('FactStore', {
+    loading: types.boolean,
+    randomFact: types.maybe(types.string),
+  })
+  .actions((self) => ({
+    getRandomFact: flow(function* () {
+      self.loading = true;
+      try {
+        const res = yield fetch(
+          `http://uselessfacts.jsph.pl/random.json?language=en`,
+        );
+        const fact = yield res.json();
+        yield new Promise((resolve) => setTimeout(resolve, 1500));
+        self.randomFact = fact?.text;
+      } catch (e) {
+        console.error(e);
+      } finally {
+        self.loading = false;
+      }
+    }),
+  }));
+
+export const factStore = FactStore.create({
+  loading: false,
 });
 
 makeInspectable(elementsStore);
+
+type FactInstance = Instance<typeof FactStore>;
+
+const FactStoreContext = createContext<null | FactInstance>(null);
+
+export const FactProvider = FactStoreContext.Provider;
 
 type ElementInstance = Instance<typeof ElementsStore>;
 
@@ -88,11 +120,23 @@ export const useElementStore = () => {
   return store;
 };
 
+export const useFactStore = () => {
+  const store = useContext(FactStoreContext);
+
+  if (store === null) {
+    throw new Error('Store cannot be null, please add a context provider');
+  }
+
+  return store;
+};
+
 const App: React.FC = () => {
   return (
     <Provider value={elementsStore}>
       <Container>
-        <LeftSidebar />
+        <FactProvider value={factStore}>
+          <LeftSidebar />
+        </FactProvider>
         <Canvas />
         <RightSidebar />
         <GlobalStyles />
