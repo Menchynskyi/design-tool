@@ -96,13 +96,9 @@ export const factStore = FactStore.create({
   loading: false,
 });
 
+export type FactInstance = Instance<typeof FactStore>;
+
 makeInspectable(elementsStore);
-
-type FactInstance = Instance<typeof FactStore>;
-
-const FactStoreContext = createContext<null | FactInstance>(null);
-
-export const FactProvider = FactStoreContext.Provider;
 
 type ElementInstance = Instance<typeof ElementsStore>;
 
@@ -120,23 +116,11 @@ export const useElementStore = () => {
   return store;
 };
 
-export const useFactStore = () => {
-  const store = useContext(FactStoreContext);
-
-  if (store === null) {
-    throw new Error('Store cannot be null, please add a context provider');
-  }
-
-  return store;
-};
-
 const App: React.FC = () => {
   return (
     <Provider value={elementsStore}>
       <Container>
-        <FactProvider value={factStore}>
-          <LeftSidebar />
-        </FactProvider>
+        <LeftSidebar factStore={factStore} />
         <Canvas />
         <RightSidebar />
         <GlobalStyles />
